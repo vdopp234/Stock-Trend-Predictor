@@ -14,10 +14,10 @@ def get_json(stock):
     from tweepy import StreamListener
     from tweepy import Stream
 
-    consumer_key = '3uSU6hUHj2XpkNZifvPRNGV0n'
-    consumer_secret = 'dtOIf3HFVlxmucgtlA6dfGbdDIWyetISWEpwPCHIstdpL6lpTo'
-    access_token = '803657590206889984-nOB9PqAcQEBlIynpZS9DUDBguquXKHN'
-    access_secret = 'z0yCFOZGc3pdFgQDiM1IVQKQYFlmjDoVhosnmTIRQlP2d'
+    consumer_key = 'YOUR--KEY--HERE'
+    consumer_secret = 'YOUR--SECRET--HERE'
+    access_token = 'YOUR--TOKEN--HERE'
+    access_secret = 'YOUR--SECRET--HERE'
 
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_secret)
