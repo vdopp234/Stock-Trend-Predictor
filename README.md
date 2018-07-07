@@ -22,7 +22,12 @@ The network itself is an LSTM recurrent network, similar to the model I used to 
 
 Note: This repo does NOT contain the data (GloVe Embeddings, IMDB Movie Reviews, etc.) I used to train my entire network, as it would take a very long time to push them to this repo. 
 
+My machine learning code is written using the Keras library for Python, an abstraction of the Tensorflow library.
+
 Citations: 
+
 IMDB Movie Dataset -- http://ai.stanford.edu/~amaas/data/sentiment/
+
 Glove Embeddings -- https://nlp.stanford.edu/projects/glove/
+
 Stocktwits Python Client -- https://github.com/hamx0r/stocktwits
