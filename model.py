@@ -3,59 +3,76 @@ import data_collection as dc
 import data_processing as dp
 import numpy as np
 #NN imports
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import LSTM
-from keras.layers import Dropout
+from keras.models import Sequential, model_from_json
+from keras.layers import Dense, LSTM, Dropout, Flatten
 
-def model(x, y):
 
-    model = Sequential()
-    model.add(LSTM(128, input_shape = (3, 8), return_sequences = True))
-    model.add(LSTM(64, return_sequences = False))
-    model.add(Dense(16, activation = 'relu'))
-    model.add(Dense(1, activation = 'relu'))
-
-    model.compile(loss = 'mse', optimizer = 'rmsprop', metrics = ['accuracy'])
-    model.fit(x, y, batch_size = 1, epochs = 10)
-    return model
 
 def create_sequence(stock, start_date, window_size):
     curr_date = start_date
-    curr_sequence = dp.f_vec(stock, curr_date)
-    for _ in len(range(window_size - 1)):
-        next_day = int(start_date[2:4]) + 1
-        next_month = str(int(start_date[:2]))
-        if next_day == 32 or (next_day == 31 and (next_month == 4 or next_month == 6 or next_month == 9 or next_month == 11)):
-            next_month = str(int(next_month) + 1)
-            next_day = 0
-        if next_day < 10:
-            next_day = '0' + next_day
-        else:
-            next_day = str(next_day)
-        curr_date = curr_date[:2] + next_day + start_date[4:]
-        new_vec = dp.f_vec(curr_date)
-        curr_sequence = np.vstack((curr_sequence, new_vec.T))
-    next_day = int(start_date[2:4]) + window_size
-    next_month = str(int(start_date[:2]))
-    #Change month if necessary
-    if next_day == 32 or (next_day == 31 and (next_month == 4 or next_month == 6 or next_month == 9 or next_month == 11)):
-        next_month = str(int(next_month) + 1)
-        next_day = 0
-    if next_day < 10:
-        next_day = '0' + next_day
-    else:
-        next_day = str(next_day)
-    curr_date = curr_date[:2] + next_day + start_date[4:]
+    curr_sequence = ''
+    try:
+        curr_sequence = dp.f_vec(stock, curr_date).T
+    except KeyError:
+        try:
+            curr_date = dp.get_next_date(curr_date)
+            curr_sequence = dp.f_vec(stock, curr_date).T
+        except KeyError:
+            curr_date = dp.get_next_date(curr_date)
+            curr_sequence = dp.f_vec(stock, curr_date).T
+    for _ in range(window_size - 1):
+        #print(curr_date)
+        curr_date = dp.get_next_date(curr_date)
+        print(curr_date)
+        try:
+            new_vec = dp.f_vec(stock, curr_date).T
+        except KeyError:
+            try:
+                curr_date = dp.get_next_date(curr_date)
+                print(curr_date)
+                new_vec = dp.f_vec(stock, curr_date).T
+            except KeyError:
+                curr_date = dp.get_next_date(curr_date)
+                print(curr_date)
+                new_vec = dp.f_vec(stock, curr_date).T
+        curr_sequence = np.vstack((curr_sequence, new_vec))
+    curr_date = dp.get_next_date(curr_date)
+    #print(curr_date)
     open, close = dc.get_hist_data(stock, curr_date)
-    return curr_sequence, close
+    return curr_sequence, close/1000
 
 def get_x_y(stock, start_date):
     x = []
     y = []
     window_length = 3
-    for _ in range(5):
+    num_of_training_examples = 10
+    for _ in range(num_of_training_examples):
         hold = create_sequence(stock, start_date, window_length)
         x.append(hold[0])
         y.append(hold[1])
     return x, y
+
+def get_model(x, y):
+    model = Sequential()
+    model.add(LSTM(16, input_shape = (3, 6), return_sequences = True))
+    model.add(LSTM(8, return_sequences = True))
+    model.add(Flatten())
+    model.add(Dense(16, activation = 'relu'))
+    model.add(Dense(1, activation = 'relu')) #NOT sigmoid or softmax because this is a linear regression problem
+
+    model.compile(loss = 'mse', optimizer = 'adam', metrics = ['accuracy'])
+    model.fit(x, y, batch_size = 1, epochs = 10)
+
+    model_json = model.to_json()
+    with open('saved_models/main_model.json', 'w') as f:
+        f.write(model_json)
+    model.save_weights('saved_models/main_model.h5')
+    return model
+
+def load_model():
+    model = open('saved_models/main_model.json')
+    loaded_model = model.read()
+    model.close()
+    loaded_model = model_from_json(loaded_model)
+    loaded_model.load_weights('saved_models/main_model.h5')
+    return loaded_model

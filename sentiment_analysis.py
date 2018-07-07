@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from keras.preprocessing.sequence import pad_sequences
 #NN Imports
 from keras.models import Sequential, model_from_json
-from keras.layers import Dense, Embedding, Dropout, Conv1D, Flatten, LSTM
+from keras.layers import Dense, Embedding, Flatten, LSTM
 
 
 def get_num(str):
