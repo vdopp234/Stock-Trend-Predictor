@@ -25,3 +25,4 @@ Note: This repo does NOT contain the data (GloVe Embeddings, IMDB Movie Reviews,
 Citations: 
 IMDB Movie Dataset -- http://ai.stanford.edu/~amaas/data/sentiment/
 Glove Embeddings -- https://nlp.stanford.edu/projects/glove/
+Stocktwits Python Client -- https://github.com/hamx0r/stocktwits
