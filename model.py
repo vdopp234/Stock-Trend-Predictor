@@ -15,28 +15,28 @@ def create_sequence(stock, start_date, window_size):
         curr_sequence = dp.f_vec(stock, curr_date).T
     except KeyError:
         try:
-            curr_date = dp.get_next_date(curr_date)
+            curr_date = dc.get_next_date(curr_date)
             curr_sequence = dp.f_vec(stock, curr_date).T
         except KeyError:
-            curr_date = dp.get_next_date(curr_date)
+            curr_date = dc.get_next_date(curr_date)
             curr_sequence = dp.f_vec(stock, curr_date).T
     for _ in range(window_size - 1):
         #print(curr_date)
-        curr_date = dp.get_next_date(curr_date)
+        curr_date = dc.get_next_date(curr_date)
         print(curr_date)
         try:
             new_vec = dp.f_vec(stock, curr_date).T
         except KeyError:
             try:
-                curr_date = dp.get_next_date(curr_date)
+                curr_date = dc.get_next_date(curr_date)
                 print(curr_date)
                 new_vec = dp.f_vec(stock, curr_date).T
             except KeyError:
-                curr_date = dp.get_next_date(curr_date)
+                curr_date = dc.get_next_date(curr_date)
                 print(curr_date)
                 new_vec = dp.f_vec(stock, curr_date).T
         curr_sequence = np.vstack((curr_sequence, new_vec))
-    curr_date = dp.get_next_date(curr_date)
+    curr_date = dc.get_next_date(curr_date)
     #print(curr_date)
     open, close = dc.get_hist_data(stock, curr_date)
     return curr_sequence, close/1000
@@ -46,10 +46,12 @@ def get_x_y(stock, start_date):
     y = []
     window_length = 3
     num_of_training_examples = 10
+    curr_date = start_date
     for _ in range(num_of_training_examples):
-        hold = create_sequence(stock, start_date, window_length)
+        hold = create_sequence(stock, curr_date, window_length)
         x.append(hold[0])
         y.append(hold[1])
+        curr_date = dc.get_next_date(curr_date)
     return x, y
 
 def get_model(x, y):
